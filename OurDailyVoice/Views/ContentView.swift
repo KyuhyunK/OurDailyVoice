@@ -34,10 +34,16 @@ struct ContentView: View {
                     .font(.headline)
                     .foregroundStyle(.white)
 
+                Picker("Mode", selection: $vm.mode) {
+                    Text("Enter").tag(SessionMode.enter)
+                    Text("Leave").tag(SessionMode.leave)
+                }
+                .pickerStyle(.segmented)
+
                 LazyVGrid(columns: cols, spacing: 12) {
                     ForEach(MoodPalette.options) { option in
                         Button {
-                            vm.log(option: option)
+                            vm.logGroup(option: option)
                         } label: {
                             VStack(spacing: 6) {
                                 Text(option.emoji)

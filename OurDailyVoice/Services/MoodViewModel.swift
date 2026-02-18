@@ -16,6 +16,8 @@ final class MoodViewModel: ObservableObject {
     @Published var entries: [MoodEntry] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var mode: SessionMode = .enter
+    @Published var session: SessionDay?
 
     private let service = MoodService()
     private var uid: String?
@@ -31,10 +33,11 @@ final class MoodViewModel: ObservableObject {
     }
 
     func refresh() async throws {
-        guard let uid else { return }
         isLoading = true
         defer { isLoading = false }
+
         entries = try await service.fetchMoodsForDayUsingSelectedClub(day: selectedDay)
+        session = try await service.fetchSessionDayUsingSelectedClub(day: selectedDay)
     }
 
     func setDay(_ day: Date) {
@@ -51,8 +54,23 @@ final class MoodViewModel: ObservableObject {
         Task {
             defer { isLoading = false }
             do {
-                guard let uid else { return }
                 try await service.addMoodUsingSelectedClub(emoji: option.emoji, value: option.value, day: selectedDay)
+                Haptics.success()
+                try await refresh()
+            } catch {
+                Haptics.error()
+                errorMessage = error.localizedDescription
+            }
+        }
+    }
+    
+    func logGroup(option: MoodOption) {
+        isLoading = true
+        Haptics.tap()
+        Task {
+            defer { isLoading = false }
+            do {
+                try await service.appendGroupMoodUsingSelectedClub(day: selectedDay, mode: mode, value: option.value)
                 Haptics.success()
                 try await refresh()
             } catch {

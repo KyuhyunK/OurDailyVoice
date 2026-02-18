@@ -1,13 +1,15 @@
 import SwiftUI
 
 struct LoginView: View {
+    @EnvironmentObject private var appState: AppState
+
     @State private var email: String = ""
     @State private var password: String = ""
     @State private var isLoading: Bool = false
     @State private var errorMessage: String?
 
-    let moodService: MoodService
-    let onSignedIn: (String) -> Void
+
+    let moodService: MoodService = MoodService()
 
     var body: some View {
         VStack(spacing: 16) {
@@ -78,8 +80,8 @@ struct LoginView: View {
         isLoading = true
         errorMessage = nil
         do {
-            let uid = try await moodService.ensureSignedIn()
-            onSignedIn(uid)
+            _ = try await moodService.ensureSignedIn()
+            appState.isLoggedIn = true
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -88,5 +90,7 @@ struct LoginView: View {
 }
 
 #Preview {
-    LoginView(moodService: MoodService()) { _ in }
+    LoginView()
+        .environmentObject(AppState())
 }
+

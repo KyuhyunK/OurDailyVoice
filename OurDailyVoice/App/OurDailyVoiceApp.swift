@@ -10,13 +10,24 @@ import FirebaseCore
 
 @main
 struct OurDailyVoiceApp: App {
+    @StateObject private var appState = AppState()
+
     init() {
         FirebaseApp.configure()
     }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            Group {
+                if !appState.isLoggedIn {
+                    LoginView()
+                } else if appState.selectedSite == nil {
+                    ClubPickerView()
+                } else {
+                    ContentView()
+                }
+            }
+            .environmentObject(appState)
         }
     }
 }

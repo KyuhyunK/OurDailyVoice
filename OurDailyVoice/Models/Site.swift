@@ -1,0 +1,30 @@
+//
+//  Site.swift
+//  OurDailyVoice
+//
+//  Created by Kyu Kim on 2/18/26.
+//
+
+import Foundation
+import FirebaseFirestore
+
+struct Site: Identifiable, Hashable {
+    let id: String
+    let name: String
+
+    init(id: String, name: String) {
+        self.id = id
+        self.name = name
+    }
+
+    init?(doc: DocumentSnapshot) {
+        let data = doc.data() ?? [:]
+        let name =
+            (data["name"] as? String) ??
+            (data["siteID"] as? String) ??
+            doc.documentID
+
+        self.id = doc.documentID
+        self.name = name
+    }
+}
