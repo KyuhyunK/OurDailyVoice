@@ -18,31 +18,32 @@ final class MoodService {
     struct Club: Identifiable, Hashable, Codable {
         var id: String
         var name: String
+        var rooms: [String]
     }
 
     // MARK: - Defaults
 
     private let defaultClubs: [Club] = [
-        Club(id: "aj", name: "Andrew Jackson"),
-        Club(id: "Chad", name: "Chadwell"),
-        Club(id: "EEP", name: "East End Prep"),
-        Club(id: "EV", name: "Eagle View"),
-        Club(id: "FV", name: "Fair View"),
-        Club(id: "Fr", name: "Franklin"),
-        Club(id: "GG", name: "Glengarry"),
-        Club(id: "NB", name: "Neely's Bend"),
-        Club(id: "PT", name: "Preston Taylor"),
-        Club(id: "Shw", name: "Shwab"),
-        Club(id: "Val", name: "Valor")
+        Club(id: "aj", name: "Andrew Jackson", rooms: ["Room 101", "Room 102"]),
+        Club(id: "Chad", name: "Chadwell", rooms: ["Room A", "Room B"]),
+        Club(id: "EEP", name: "East End Prep", rooms: ["Room 1"]),
+        Club(id: "EV", name: "Eagle View", rooms: ["Blue Room", "Green Room"]),
+        Club(id: "FV", name: "Fair View", rooms: []),
+        Club(id: "Fr", name: "Franklin", rooms: []),
+        Club(id: "GG", name: "Glengarry", rooms: []),
+        Club(id: "NB", name: "Neely's Bend", rooms: []),
+        Club(id: "PT", name: "Preston Taylor", rooms: []),
+        Club(id: "Shw", name: "Shwab", rooms: []),
+        Club(id: "Val", name: "Valor", rooms: [])
     ]
 
-    private let db = Firestore.firestore()
+    private lazy var db = Firestore.firestore()
     private let selectedClubDefaultsKey = "SelectedClubId"
 
     // MARK: - Club Selection
 
     private func clubsCollection() -> CollectionReference {
-        db.collection("clubs")
+        db.collection(Constants.sitesCollection)
     }
 
     func setSelectedClubId(_ clubId: String?) {
@@ -69,10 +70,17 @@ final class MoodService {
 
         for doc in snapshot.documents {
             let data = doc.data()
-            let name = (data["name"] as? String) ?? doc.documentID
-            let club = Club(id: doc.documentID, name: name)
 
-            if !clubs.contains(where: { $0.id == club.id }) {
+            guard let name = data["name"] as? String, !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                continue
+            }
+
+            let rooms = (data["rooms"] as? [String]) ?? []
+            let club = Club(id: doc.documentID, name: name, rooms: rooms)
+
+            if let index = clubs.firstIndex(where: { $0.name.caseInsensitiveCompare(club.name) == .orderedSame }) {
+                clubs[index] = club
+            } else {
                 clubs.append(club)
             }
         }
@@ -82,15 +90,16 @@ final class MoodService {
     }
 
     @discardableResult
-    func addClub(name: String) async throws -> Club {
+    func addClub(name: String, rooms: [String] = []) async throws -> Club {
         let ref = clubsCollection().document()
 
         try await ref.setData([
             "name": name,
+            "rooms": rooms,
             "createdAt": FieldValue.serverTimestamp()
         ])
 
-        let club = Club(id: ref.documentID, name: name)
+        let club = Club(id: ref.documentID, name: name, rooms: rooms)
         setSelectedClubId(club.id)
         return club
     }
@@ -109,7 +118,9 @@ final class MoodService {
     // MARK: - Individual Mood Logging
 
     private func clubMoodsCollection(clubId: String) -> CollectionReference {
-        db.collection("clubs").document(clubId).collection("moods")
+        db.collection(Constants.sitesCollection)
+            .document(clubId)
+            .collection("moods")
     }
 
     func addMood(clubId: String, emoji: String, value: Int, day: Date) async throws {
@@ -122,7 +133,7 @@ final class MoodService {
             "timestamp": FieldValue.serverTimestamp()
         ])
 
-        print("[Firestore] wrote: clubs/\(clubId)/moods/\(ref.documentID)")
+        print("[Firestore] wrote: \(Constants.sitesCollection)/\(clubId)/moods/\(ref.documentID)")
     }
 
     func addMoodUsingSelectedClub(emoji: String, value: Int, day: Date) async throws {
@@ -142,10 +153,11 @@ final class MoodService {
         let snap = try await clubMoodsCollection(clubId: clubId)
             .whereField("day", isGreaterThanOrEqualTo: Timestamp(date: start))
             .whereField("day", isLessThan: Timestamp(date: end))
+            .order(by: "day")
             .order(by: "timestamp", descending: true)
             .getDocuments(source: .server)
 
-        return snap.documents.compactMap { doc in
+        return snap.documents.compactMap { doc -> MoodEntry? in
             let data = doc.data()
 
             guard
@@ -164,7 +176,7 @@ final class MoodService {
             )
         }
     }
-
+    
     func fetchMoodsForDayUsingSelectedClub(day: Date) async throws -> [MoodEntry] {
         guard let clubId = selectedClubId else {
             throw NSError(domain: "MoodService", code: 400, userInfo: [
@@ -180,7 +192,7 @@ final class MoodService {
     private func sessionDoc(clubId: String, day: Date) -> DocumentReference {
         let dayId = SessionDay.dayId(for: day)
 
-        return db.collection("clubs")
+        return db.collection(Constants.sitesCollection)
             .document(clubId)
             .collection("sessions")
             .document(dayId)
@@ -196,7 +208,7 @@ final class MoodService {
         let ref = sessionDoc(clubId: clubId, day: day)
         let dayStart = Calendar.current.startOfDay(for: day)
 
-        try await db.runTransaction { txn, errPtr in
+        _ = try await db.runTransaction { txn, errPtr in
             do {
                 let snap = try txn.getDocument(ref)
                 var data = snap.data() ?? [:]

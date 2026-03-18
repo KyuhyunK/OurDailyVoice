@@ -19,15 +19,19 @@ struct OurDailyVoiceApp: App {
     var body: some Scene {
         WindowGroup {
             Group {
-                if !appState.isLoggedIn {
-                    LoginView()
-                } else if appState.selectedSite == nil {
+                if appState.selectedSite == nil {
                     ClubPickerView()
+                } else if appState.selectedRoom == nil {
+                    RoomListView(site: appState.selectedSite!)
                 } else {
                     ContentView()
                 }
             }
             .environmentObject(appState)
+            .task {
+                let moodService = MoodService()
+                _ = try? await moodService.ensureSignedIn()
+            }
         }
     }
 }

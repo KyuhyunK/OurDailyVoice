@@ -1,12 +1,15 @@
+//
+//  RoomListView.swift
+//  OurDailyVoice
+//
+//  Created by Kyu Kim on 3/18/26.
+//
+
 import SwiftUI
 
-struct ClubPickerView: View {
+struct RoomListView: View {
     @EnvironmentObject private var appState: AppState
-    let service = MoodService()
-
-    @State private var clubs: [MoodService.Club] = []
-    @State private var isLoading = true
-    @State private var error: String?
+    let site: Site
 
     var body: some View {
         ZStack {
@@ -15,50 +18,59 @@ struct ClubPickerView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
+                    HStack {
+                        Button {
+                            Haptics.tap()
+                            appState.selectedSite = nil
+                            appState.selectedRoom = nil
+                        } label: {
+                            Image(systemName: "chevron.left")
+                                .font(.headline.weight(.semibold))
+                                .foregroundStyle(.white)
+                                .padding(12)
+                                .background(.white.opacity(Theme.cardOpacity))
+                                .clipShape(Circle())
+                        }
+                        .buttonStyle(.plain)
+
+                        Spacer()
+                    }
+
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Our Daily Voice")
-                            .font(.system(size: 34, weight: .bold))
+                            .font(.system(size: 34, weight: .heavy))
                             .foregroundStyle(.white)
 
-                        Text("Select a Site")
-                            .font(.title3)
-                            .foregroundStyle(.white.opacity(0.9))
+                        Text(site.name)
+                            .font(.title2.weight(.semibold))
+                            .foregroundStyle(.white.opacity(0.95))
+
+                        Text("Select a Room")
+                            .font(.subheadline)
+                            .foregroundStyle(.white.opacity(0.85))
                     }
-                    .padding(.top, 8)
 
-                    if isLoading {
-                        ProgressView("Loading sites...")
-                            .tint(.white)
+                    if site.rooms.isEmpty {
+                        Text("No rooms available yet.")
                             .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .padding(.top, 40)
-                    } else if let error {
-                        Text(error)
-                            .foregroundStyle(.white)
-                            .padding()
+                            .padding(20)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(.white.opacity(Theme.cardOpacity))
                             .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
                     } else {
                         VStack(spacing: 14) {
-                            ForEach(clubs) { club in
+                            ForEach(site.rooms, id: \.self) { room in
                                 Button {
                                     Haptics.tap()
-                                    service.setSelectedClubId(club.id)
-                                    appState.selectedSite = Site(
-                                        id: club.id,
-                                        name: club.name,
-                                        rooms: club.rooms
-                                    )
-                                    appState.selectedRoom = nil
+                                    appState.selectedRoom = room
                                 } label: {
                                     HStack {
-                                        VStack(alignment: .leading, spacing: 6) {
-                                            Text(club.name)
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(room)
                                                 .font(.title3.weight(.semibold))
                                                 .foregroundStyle(.white)
 
-                                            Text("\(club.rooms.count) room\(club.rooms.count == 1 ? "" : "s")")
+                                            Text(site.name)
                                                 .font(.subheadline)
                                                 .foregroundStyle(.white.opacity(0.8))
                                         }
@@ -74,7 +86,7 @@ struct ClubPickerView: View {
                                     .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
                                     .overlay(
                                         RoundedRectangle(cornerRadius: Theme.corner)
-                                            .stroke(.white.opacity(0.12), lineWidth: 1)
+                                            .stroke(.white.opacity(0.14), lineWidth: 1)
                                     )
                                 }
                                 .buttonStyle(.plain)
@@ -84,18 +96,19 @@ struct ClubPickerView: View {
 
                     Spacer(minLength: 40)
                 }
-                .padding(24)
+                .padding()
             }
         }
-    .task { await load() }
     }
+}
 
-    private func load() async {
-        do {
-            clubs = try await service.fetchClubs()
-        } catch {
-            self.error = error.localizedDescription
-        }
-        isLoading = false
-    }
+#Preview {
+    RoomListView(
+        site: Site(
+            id: "aj",
+            name: "Andrew Jackson",
+            rooms: ["Room 101", "Room 102", "Room 103"]
+        )
+    )
+    .environmentObject(AppState())
 }

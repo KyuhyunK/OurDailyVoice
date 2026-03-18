@@ -81,17 +81,32 @@ final class MoodViewModel: ObservableObject {
     }
 
     var average: Double? {
-        guard !entries.isEmpty else { return nil }
-        let sum = entries.reduce(0) { $0 + $1.value }
-        return Double(sum) / Double(entries.count)
+        let values = mode == .enter
+            ? (session?.enterValues ?? [])
+            : (session?.leaveValues ?? [])
+
+        guard !values.isEmpty else { return nil }
+        let sum = values.reduce(0, +)
+        return Double(sum) / Double(values.count)
     }
 
     var topEmoji: String? {
-        guard !entries.isEmpty else { return nil }
-        var counts: [String: Int] = [:]
-        for e in entries { counts[e.emoji, default: 0] += 1 }
-        return counts.max(by: { $0.value < $1.value })?.key
+        let values = mode == .enter
+            ? (session?.enterValues ?? [])
+            : (session?.leaveValues ?? [])
+
+        guard !values.isEmpty else { return nil }
+
+        var counts: [Int: Int] = [:]
+        for value in values {
+            counts[value, default: 0] += 1
+        }
+
+        guard let topValue = counts.max(by: { $0.value < $1.value })?.key else {
+            return nil
+        }
+
+        return MoodPalette.options.first(where: { $0.value == topValue })?.emoji
     }
-    
     
 }
