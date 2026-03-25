@@ -63,7 +63,7 @@ struct ContentView: View {
 
     @ToolbarContentBuilder
     private var navigationBarContent: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
+        ToolbarItem(placement: .topBarLeading) {
             Menu {
                 Button {
                     Haptics.tap()
