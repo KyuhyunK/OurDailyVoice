@@ -21,8 +21,8 @@ struct MoodOption: Identifiable, Hashable {
     // should it be a gradient (happy to sad) or more expressive with other emotions as well?
 enum MoodPalette {
     static let options: [MoodOption] = [
-        .init(emoji: "😭", value: 1, label: "Awful"),
-        .init(emoji: "😢", value: 2, label: "Very Bad"),
+        .init(emoji: "😢", value: 1, label: "Awful"),
+        .init(emoji: "😞", value: 2, label: "Very Bad"),
         .init(emoji: "🙁", value: 3, label: "Bad"),
         .init(emoji: "😐", value: 4, label: "Meh"),
         .init(emoji: "🙂", value: 5, label: "Okay"),

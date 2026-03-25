@@ -2,81 +2,48 @@
 //  ContentView.swift
 //  OurDailyVoice
 //
-//  Created by Kyu Kim on 1/14/26.
-//
 
 import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject private var appState: AppState
     @StateObject private var vm = MoodViewModel()
+    @State private var showAdminAnalytics = false
 
     private let cols = Array(repeating: GridItem(.flexible(), spacing: 12), count: 3)
 
     var body: some View {
-        ZStack {
-            Theme.bgGradient.ignoresSafeArea()
+        NavigationStack {
+            ZStack {
+                Theme.bgGradient
+                    .ignoresSafeArea()
 
-            VStack(alignment: .leading, spacing: 16) {
-                header
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        currentSelectionSection
+                        dayPickerSection
 
-                DatePicker(
-                    "Day",
-                    selection: Binding(
-                        get: { vm.selectedDay },
-                        set: { vm.setDay($0) }
-                    ),
-                    displayedComponents: .date
-                )
-                .datePickerStyle(.compact)
-                .tint(.white)
-                .padding(12)
-                .background(.white.opacity(Theme.cardOpacity))
-                .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
+                        Text("Tap your vibe ✨")
+                            .font(.headline)
+                            .foregroundStyle(.white)
 
-                Text("Tap your vibe ✨")
-                    .font(.headline)
-                    .foregroundStyle(.white)
+                        modePickerSection
+                        moodGridSection
+                        statsRow
+                        logsList
 
-                Picker("Mode", selection: $vm.mode) {
-                    Text("Enter").tag(SessionMode.enter)
-                    Text("Leave").tag(SessionMode.leave)
-                }
-                .pickerStyle(.segmented)
-
-                LazyVGrid(columns: cols, spacing: 12) {
-                    ForEach(MoodPalette.options) { option in
-                        Button {
-                            Haptics.tap()
-                            vm.logGroup(option: option)
-                        } label: {
-                            VStack(spacing: 6) {
-                                Text(option.emoji)
-                                    .font(.system(size: 36))
-
-                                Text("\(option.value)")
-                                    .font(.caption.weight(.bold))
-                                    .foregroundStyle(.white.opacity(0.9))
-                            }
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 80)
-                            .background(.white.opacity(Theme.cardOpacity))
-                            .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: Theme.corner)
-                                    .stroke(.white.opacity(0.18), lineWidth: 1)
-                            )
-                        }
-                        .buttonStyle(.plain)
+                        Spacer(minLength: 24)
                     }
+                    .padding()
                 }
-
-                statsRow
-                logsList
-
-                Spacer()
             }
-            .padding()
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { navigationBarContent }
+            .toolbarBackground(.hidden, for: .navigationBar)
+            .navigationDestination(isPresented: $showAdminAnalytics) {
+                AdminAnalyticsView(dailyScores: vm.dailyAnalytics)
+            }
         }
         .task { await vm.start() }
         .alert(
@@ -92,88 +59,112 @@ struct ContentView: View {
         }
     }
 
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Our Daily Voice")
-                        .font(.system(size: 34, weight: .heavy))
-                        .foregroundStyle(.white)
+    // MARK: - NAV BAR
 
-                    Text(vm.selectedDay.formatted(date: .complete, time: .omitted))
-                        .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.85))
-                }
-
-                Spacer()
-
-                if vm.isLoading {
-                    ProgressView()
-                        .tint(.white)
-                }
-            }
-
-            HStack(spacing: 10) {
-                infoPill(
-                    title: "Site",
-                    value: appState.selectedSite?.name ?? "No Site"
-                )
-
-                infoPill(
-                    title: "Room",
-                    value: appState.selectedRoom ?? "No Room"
-                )
-            }
-
-            HStack(spacing: 10) {
+    @ToolbarContentBuilder
+    private var navigationBarContent: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Menu {
                 Button {
                     Haptics.tap()
                     appState.selectedRoom = nil
                 } label: {
-                    Text("Change Room")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.white)
-                        .padding(.vertical, 10)
-                        .padding(.horizontal, 14)
-                        .background(.white.opacity(Theme.cardOpacity))
-                        .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
+                    Label("Change Room", systemImage: "door.left.hand.open")
                 }
-                .buttonStyle(.plain)
 
                 Button {
                     Haptics.tap()
                     appState.selectedRoom = nil
                     appState.selectedSite = nil
                 } label: {
-                    Text("Change Site")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.white)
-                        .padding(.vertical, 10)
-                        .padding(.horizontal, 14)
-                        .background(.white.opacity(Theme.cardOpacity))
-                        .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
+                    Label("Change Site", systemImage: "building.2")
+                }
+
+                Button {
+                    Haptics.tap()
+                    showAdminAnalytics = true
+                } label: {
+                    Label("Admin Analytics", systemImage: "chart.bar")
+                }
+            } label: {
+                Image(systemName: "line.3.horizontal")
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundStyle(.white)
+                    .padding(12)
+            }
+        }
+    }
+
+    // MARK: - TOP INFO
+
+    private var currentSelectionSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(appState.selectedSite?.name ?? "No Site Selected")
+                .font(.title2.weight(.bold))
+                .foregroundStyle(.white)
+
+            Text(appState.selectedRoom ?? "No Room Selected")
+                .font(.headline)
+                .foregroundStyle(.white.opacity(0.9))
+        }
+    }
+
+    // MARK: - SECTIONS
+
+    private var dayPickerSection: some View {
+        DatePicker(
+            "Choose Date",
+            selection: Binding(
+                get: { vm.selectedDay },
+                set: { vm.setDay($0) }
+            ),
+            displayedComponents: .date
+        )
+        .datePickerStyle(.compact)
+        .tint(.white)
+        .padding(12)
+        .background(.white.opacity(Theme.cardOpacity))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
+    }
+
+    private var modePickerSection: some View {
+        Picker("Mode", selection: $vm.mode) {
+            Text("Enter").tag(SessionMode.enter)
+            Text("Leave").tag(SessionMode.leave)
+        }
+        .pickerStyle(.segmented)
+    }
+
+    private var moodGridSection: some View {
+        LazyVGrid(columns: cols, spacing: 12) {
+            ForEach(MoodPalette.options) { option in
+                Button {
+                    Haptics.tap()
+                    vm.logGroup(option: option)
+                } label: {
+                    VStack(spacing: 6) {
+                        Text(option.emoji)
+                            .font(.system(size: 36))
+
+                        Text("\(option.value)")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(.white.opacity(0.9))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 80)
+                    .background(.white.opacity(Theme.cardOpacity))
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: Theme.corner)
+                            .stroke(.white.opacity(0.18), lineWidth: 1)
+                    )
                 }
                 .buttonStyle(.plain)
             }
         }
     }
 
-    private func infoPill(title: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.white.opacity(0.8))
-
-            Text(value)
-                .font(.subheadline.weight(.bold))
-                .foregroundStyle(.white)
-                .lineLimit(1)
-        }
-        .padding(.vertical, 10)
-        .padding(.horizontal, 12)
-        .background(.white.opacity(Theme.cardOpacity))
-        .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
-    }
+    // MARK: - HELPERS
 
     private var statsRow: some View {
         let values = vm.mode == .enter
@@ -202,7 +193,7 @@ struct ContentView: View {
         .background(.white.opacity(Theme.cardOpacity))
         .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
     }
-    
+
     private func emojiForValue(_ value: Int) -> String {
         MoodPalette.options.first(where: { $0.value == value })?.emoji ?? "🙂"
     }
@@ -212,28 +203,30 @@ struct ContentView: View {
             ? (vm.session?.enterValues ?? [])
             : (vm.session?.leaveValues ?? [])
 
+        let displayedValues = Array(values.reversed())
+
         return VStack(alignment: .leading, spacing: 8) {
             Text("Logs")
                 .font(.headline)
                 .foregroundStyle(.white)
 
-            if values.isEmpty {
-                Text("No \(vm.mode == .enter ? "enter" : "leave") logs yet — tap an emoji.")
+            if displayedValues.isEmpty {
+                Text("No logs yet — tap an emoji.")
                     .foregroundStyle(.white.opacity(0.85))
             } else {
                 ScrollView {
                     VStack(spacing: 10) {
-                        ForEach(Array(values.enumerated()), id: \.offset) { index, value in
+                        ForEach(Array(displayedValues.enumerated()), id: \.offset) { index, value in
                             HStack(spacing: 12) {
                                 Text(emojiForValue(value))
                                     .font(.system(size: 28))
 
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("\(vm.mode == .enter ? "Enter" : "Leave") value: \(value)")
+                                    Text("Value: \(value)")
                                         .foregroundStyle(.white)
                                         .font(.subheadline.weight(.semibold))
 
-                                    Text("Log \(index + 1)")
+                                    Text("Log \(displayedValues.count - index)")
                                         .foregroundStyle(.white.opacity(0.85))
                                         .font(.caption)
                                 }
@@ -243,10 +236,6 @@ struct ContentView: View {
                             .padding(12)
                             .background(.white.opacity(Theme.cardOpacity))
                             .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: Theme.corner)
-                                    .stroke(.white.opacity(0.14), lineWidth: 1)
-                            )
                         }
                     }
                 }
@@ -254,9 +243,4 @@ struct ContentView: View {
             }
         }
     }
-}
-
-#Preview {
-    ContentView()
-        .environmentObject(AppState())
 }

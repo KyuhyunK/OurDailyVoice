@@ -24,16 +24,16 @@ final class MoodService {
     // MARK: - Defaults
 
     private let defaultClubs: [Club] = [
-        Club(id: "aj", name: "Andrew Jackson", rooms: ["Room 101", "Room 102"]),
-        Club(id: "Chad", name: "Chadwell", rooms: ["Room A", "Room B"]),
-        Club(id: "EEP", name: "East End Prep", rooms: ["Room 1"]),
-        Club(id: "EV", name: "Eagle View", rooms: ["Blue Room", "Green Room"]),
+        Club(id: "aj", name: "Andrew Jackson", rooms: ["Dreamerville", "Teen Tech Center", "Music Studio", "Art Room", "Gymnasium", "Game Room"]),
+        Club(id: "Chad", name: "Chadwell", rooms: []),
+        Club(id: "EEP", name: "East End Prep", rooms: ["PD Room", "Game Rooom"]),
+        Club(id: "EV", name: "Eagle View", rooms: []),
         Club(id: "FV", name: "Fair View", rooms: []),
         Club(id: "Fr", name: "Franklin", rooms: []),
         Club(id: "GG", name: "Glengarry", rooms: []),
         Club(id: "NB", name: "Neely's Bend", rooms: []),
         Club(id: "PT", name: "Preston Taylor", rooms: []),
-        Club(id: "Shw", name: "Shwab", rooms: []),
+        Club(id: "Shw", name: "Shwab", rooms: ["Room 204", "Room 247"]),
         Club(id: "Val", name: "Valor", rooms: [])
     ]
 
@@ -261,4 +261,25 @@ final class MoodService {
 
         return SessionDay(doc: doc)
     }
+
+    func fetchAllSessionDays(clubId: String) async throws -> [SessionDay] {
+        let snap = try await db.collection(Constants.sitesCollection)
+            .document(clubId)
+            .collection("sessions")
+            .order(by: "day", descending: false)
+            .getDocuments()
+
+        return snap.documents.compactMap { SessionDay(doc: $0) }
+    }
+
+    func fetchAllSessionDaysUsingSelectedClub() async throws -> [SessionDay] {
+        guard let clubId = selectedClubId else {
+            throw NSError(domain: "MoodService", code: 400, userInfo: [
+                NSLocalizedDescriptionKey: "No club selected."
+            ])
+        }
+
+        return try await fetchAllSessionDays(clubId: clubId)
+    }
 }
+

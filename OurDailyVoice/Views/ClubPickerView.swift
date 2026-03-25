@@ -1,4 +1,5 @@
 import SwiftUI
+import Firebase
 
 struct ClubPickerView: View {
     @EnvironmentObject private var appState: AppState
