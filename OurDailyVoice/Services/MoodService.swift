@@ -25,16 +25,16 @@ final class MoodService {
 
     private let defaultClubs: [Club] = [
         Club(id: "aj", name: "Andrew Jackson", rooms: ["Dreamerville", "Teen Tech Center", "Music Studio", "Art Room", "Gymnasium", "Game Room"]),
-        Club(id: "Chad", name: "Chadwell", rooms: []),
+        Club(id: "Chad", name: "Chadwell", rooms: ["Room 1"]),
         Club(id: "EEP", name: "East End Prep", rooms: ["PD Room", "Game Rooom"]),
-        Club(id: "EV", name: "Eagle View", rooms: []),
-        Club(id: "FV", name: "Fair View", rooms: []),
-        Club(id: "Fr", name: "Franklin", rooms: []),
-        Club(id: "GG", name: "Glengarry", rooms: []),
-        Club(id: "NB", name: "Neely's Bend", rooms: []),
-        Club(id: "PT", name: "Preston Taylor", rooms: []),
+        Club(id: "EV", name: "Eagle View", rooms: ["Room 1"]),
+        Club(id: "FV", name: "Fair View", rooms: ["Room 1"]),
+        Club(id: "Fr", name: "Franklin", rooms: ["Room 1"]),
+        Club(id: "GG", name: "Glengarry", rooms: ["Room 1"]),
+        Club(id: "NB", name: "Neely's Bend", rooms: ["Room 1"]),
+        Club(id: "PT", name: "Preston Taylor", rooms: ["Room 1"]),
         Club(id: "Shw", name: "Shwab", rooms: ["Room 204", "Room 247"]),
-        Club(id: "Val", name: "Valor", rooms: [])
+        Club(id: "Val", name: "Valor", rooms: ["Room 1"])
     ]
 
     private lazy var db = Firestore.firestore()
