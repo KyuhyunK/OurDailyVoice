@@ -22,12 +22,10 @@ struct ContentView: View {
                     VStack(alignment: .leading, spacing: 16) {
                         currentSelectionSection
                         dayPickerSection
-
-                        Text("Tap your vibe ✨")
-                            .font(.headline)
-                            .foregroundStyle(.white)
-
                         modePickerSection
+                        Text("Tap your vibe ✨")
+                            .font(.title3)
+                            .foregroundStyle(.white)
                         moodGridSection
                         statsRow
                         logsList
@@ -139,6 +137,10 @@ struct ContentView: View {
             Text("Leave").tag(SessionMode.leave)
         }
         .pickerStyle(.segmented)
+        .padding(.vertical, 18)
+        .padding(.horizontal, 8)
+        .background(.white.opacity(0))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
     }
 
     private var moodGridSection: some View {
@@ -150,14 +152,14 @@ struct ContentView: View {
                 } label: {
                     VStack(spacing: 6) {
                         Text(option.emoji)
-                            .font(.system(size: 40))
+                            .font(.system(size: 60))
 
                         Text("\(option.value)")
                             .font(.caption.weight(.bold))
                             .foregroundStyle(.white.opacity(0.9))
                     }
                     .frame(maxWidth: .infinity)
-                    .frame(height: 120)
+                    .frame(height: 150)
                     .background(.white.opacity(Theme.cardOpacity))
                     .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
                     .overlay(
