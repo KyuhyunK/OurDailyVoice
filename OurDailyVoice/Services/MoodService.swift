@@ -24,17 +24,18 @@ final class MoodService {
     // MARK: - Defaults
 
     private let defaultClubs: [Club] = [
-        Club(id: "aj", name: "Andrew Jackson", rooms: ["Dreamerville", "Teen Tech Center", "Music Studio", "Art Room", "Gymnasium", "Game Room"]),
-        Club(id: "Chad", name: "Chadwell", rooms: ["Room 1"]),
+        Club(id: "aj", name: "Andrew Jackson", rooms: ["Dreamerville", "Teen Tech Center", "Music Studio", "Art Room", "Gym", "Game Room"]),
+        Club(id: "Chad", name: "Chadwell", rooms: ["Cafeteria, Gymnasium, Classroom #6, Classroom #16"]),
         Club(id: "EEP", name: "East End Prep", rooms: ["PD Room", "Game Rooom"]),
-        Club(id: "EV", name: "Eagle View", rooms: ["Room 1"]),
-        Club(id: "FV", name: "Fair View", rooms: ["Room 1"]),
-        Club(id: "Fr", name: "Franklin", rooms: ["Room 1"]),
-        Club(id: "GG", name: "Glengarry", rooms: ["Room 1"]),
-        Club(id: "NB", name: "Neely's Bend", rooms: ["Room 1"]),
-        Club(id: "PT", name: "Preston Taylor", rooms: ["Room 1"]),
+        Club(id: "EV", name: "Eagle View", rooms: ["Classroom"]),
+        Club(id: "FV", name: "Fair View", rooms: ["Main Room, Tech Lab, STEM Lab, Gamesroom, Art Room"]),
+        Club(id: "Fr", name: "Franklin", rooms: ["Gamesroom, Homework Room, Gym, Tech Lab, Snack Room, Art Room, Teen Room, Music Studio"]),
+        Club(id: "GG", name: "Glengarry", rooms: ["Games room, Classroom, Cafeteria, Gym"]),
+        Club(id: "NB", name: "Neely's Bend", rooms: ["Classroom"]),
+        Club(id: "PT", name: "Preston Taylor", rooms: ["Classroom"]),
         Club(id: "Shw", name: "Shwab", rooms: ["Room 204", "Room 247"]),
-        Club(id: "Val", name: "Valor", rooms: ["Room 1"])
+        Club(id: "Val", name: "Valor Clubhouse", rooms: ["Cafeteria, Classroom 1, Classroom 2, Classroom 3, Tech Area, Multipurpose Area"]),
+        Club(id: "ValHS", name: "Valor High School", rooms: ["Classroom"])
     ]
 
     private lazy var db = Firestore.firestore()
@@ -198,7 +199,12 @@ final class MoodService {
             .document(dayId)
     }
 
-    func appendGroupMoodUsingSelectedClub(day: Date, mode: SessionMode, value: Int) async throws {
+    func appendGroupMoodUsingSelectedClub(
+        day: Date,
+        mode: SessionMode,
+        value: Int,
+        room: String
+    ) async throws {
         guard let clubId = selectedClubId else {
             throw NSError(domain: "MoodService", code: 400, userInfo: [
                 NSLocalizedDescriptionKey: "No club selected."
@@ -215,16 +221,22 @@ final class MoodService {
 
                 var enterValues = data["enterValues"] as? [Int] ?? []
                 var leaveValues = data["leaveValues"] as? [Int] ?? []
+                var enterTimestamps = (data["enterTimestamps"] as? [Timestamp]) ?? []
+                var leaveTimestamps = (data["leaveTimestamps"] as? [Timestamp]) ?? []
+
+                let now = Timestamp(date: Date())
 
                 if mode == .enter {
                     enterValues.append(value)
+                    enterTimestamps.append(now)
                 } else {
                     leaveValues.append(value)
+                    leaveTimestamps.append(now)
                 }
 
                 func avg(_ xs: [Int]) -> Double? {
                     guard !xs.isEmpty else { return nil }
-                    return Double(xs.reduce(0,+)) / Double(xs.count)
+                    return Double(xs.reduce(0, +)) / Double(xs.count)
                 }
 
                 let enterAvg = avg(enterValues)
@@ -232,15 +244,17 @@ final class MoodService {
                 let delta = (enterAvg != nil && leaveAvg != nil) ? leaveAvg! - enterAvg! : nil
 
                 data["day"] = Timestamp(date: dayStart)
+                data["room"] = room
                 data["enterValues"] = enterValues
                 data["leaveValues"] = leaveValues
+                data["enterTimestamps"] = enterTimestamps
+                data["leaveTimestamps"] = leaveTimestamps
                 data["enterAvg"] = enterAvg as Any
                 data["leaveAvg"] = leaveAvg as Any
                 data["delta"] = delta as Any
                 data["updatedAt"] = FieldValue.serverTimestamp()
 
                 txn.setData(data, forDocument: ref, merge: true)
-
             } catch {
                 errPtr?.pointee = error as NSError
             }

@@ -16,32 +16,42 @@ enum SessionMode: String {
 struct SessionDay: Identifiable {
     let id: String           // yyyy-MM-dd
     let day: Date
-
     let enterValues: [Int]
     let leaveValues: [Int]
+    let enterTimestamps: [Date]
+    let leaveTimestamps: [Date]
     let enterAvg: Double?
     let leaveAvg: Double?
     let delta: Double?
-
-    static func dayId(for date: Date) -> String {
-        let f = DateFormatter()
-        f.locale = Locale(identifier: "en_US_POSIX")
-        f.timeZone = .current
-        f.dateFormat = "yyyy-MM-dd"
-        return f.string(from: Calendar.current.startOfDay(for: date))
-    }
+    let room: String
 
     init?(doc: DocumentSnapshot) {
         let data = doc.data() ?? [:]
-        let dayTS = data["day"] as? Timestamp ?? Timestamp(date: Date())
+
+        guard let dayTS = data["day"] as? Timestamp else { return nil }
 
         self.id = doc.documentID
         self.day = dayTS.dateValue()
-
         self.enterValues = data["enterValues"] as? [Int] ?? []
         self.leaveValues = data["leaveValues"] as? [Int] ?? []
+
+        let enterTS = data["enterTimestamps"] as? [Timestamp] ?? []
+        let leaveTS = data["leaveTimestamps"] as? [Timestamp] ?? []
+
+        self.enterTimestamps = enterTS.map { $0.dateValue() }
+        self.leaveTimestamps = leaveTS.map { $0.dateValue() }
+
         self.enterAvg = data["enterAvg"] as? Double
         self.leaveAvg = data["leaveAvg"] as? Double
         self.delta = data["delta"] as? Double
+        
+        self.room = data["room"] as? String ?? "Unknown"
+    }
+
+    static func dayId(for day: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar.current
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: Calendar.current.startOfDay(for: day))
     }
 }

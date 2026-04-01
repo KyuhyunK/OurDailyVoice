@@ -42,8 +42,14 @@ struct ContentView: View {
             .toolbar { navigationBarContent }
             .toolbarBackground(.hidden, for: .navigationBar)
             .navigationDestination(isPresented: $showAdminAnalytics) {
-                AdminAnalyticsView(dailyScores: vm.dailyAnalytics)
+                AdminAnalyticsView(
+                    dailyScores: vm.dailyAnalytics,
+                    siteName: appState.selectedSite?.name ?? "Unknown Site",
+                    availableRooms: appState.selectedSite?.rooms ?? []
+                )
             }
+        }.onAppear {
+            vm.appState = appState
         }
         .task { await vm.start() }
         .alert(
@@ -136,7 +142,7 @@ struct ContentView: View {
     }
 
     private var moodGridSection: some View {
-        LazyVGrid(columns: cols, spacing: 12) {
+        LazyVGrid(columns: cols, spacing: 15) {
             ForEach(MoodPalette.options) { option in
                 Button {
                     Haptics.tap()
@@ -144,14 +150,14 @@ struct ContentView: View {
                 } label: {
                     VStack(spacing: 6) {
                         Text(option.emoji)
-                            .font(.system(size: 36))
+                            .font(.system(size: 40))
 
                         Text("\(option.value)")
                             .font(.caption.weight(.bold))
                             .foregroundStyle(.white.opacity(0.9))
                     }
                     .frame(maxWidth: .infinity)
-                    .frame(height: 80)
+                    .frame(height: 120)
                     .background(.white.opacity(Theme.cardOpacity))
                     .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
                     .overlay(
@@ -171,10 +177,12 @@ struct ContentView: View {
             ? (vm.session?.enterValues ?? [])
             : (vm.session?.leaveValues ?? [])
 
-        return HStack(spacing: 10) {
+        return HStack(spacing: 15) {
             statPill("Logs", "\(values.count)")
             statPill("Avg", vm.average.map { String(format: "%.1f", $0) } ?? "—")
             statPill("Top", vm.topEmoji ?? "—")
+            statPill("Youths", "\(vm.youthsServed)")
+            statPill("Duration", vm.formattedProgramDuration)
         }
     }
 
@@ -217,9 +225,9 @@ struct ContentView: View {
                 ScrollView {
                     VStack(spacing: 10) {
                         ForEach(Array(displayedValues.enumerated()), id: \.offset) { index, value in
-                            HStack(spacing: 12) {
+                            HStack(spacing: 15) {
                                 Text(emojiForValue(value))
-                                    .font(.system(size: 28))
+                                    .font(.system(size: 30))
 
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Value: \(value)")

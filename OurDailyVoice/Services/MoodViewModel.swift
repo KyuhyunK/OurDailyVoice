@@ -17,6 +17,7 @@ final class MoodViewModel: ObservableObject {
     @Published var mode: SessionMode = .enter
     @Published var session: SessionDay?
     @Published var allSessions: [SessionDay] = []
+    @Published var appState: AppState?
 
     private let service = MoodService()
     private var uid: String?
@@ -85,12 +86,19 @@ final class MoodViewModel: ObservableObject {
         Task {
             defer { isLoading = false }
 
+            guard let room = appState?.selectedRoom else {
+                errorMessage = "No room selected."
+                return
+            }
+
             do {
                 try await service.appendGroupMoodUsingSelectedClub(
                     day: selectedDay,
                     mode: mode,
-                    value: option.value
+                    value: option.value,
+                    room: room
                 )
+
                 Haptics.success()
                 try await refresh()
                 try await refreshAnalytics()
@@ -129,35 +137,121 @@ final class MoodViewModel: ObservableObject {
 
         return MoodPalette.options.first(where: { $0.value == topValue })?.emoji
     }
-
-    var dailyAnalytics: [Date: DailyAnalytics] {
-        let calendar = Calendar.current
-
-        return Dictionary(
-            uniqueKeysWithValues: allSessions.map { session in
-                let date = calendar.startOfDay(for: session.day)
-
-                let enter = session.enterValues
-                let leave = session.leaveValues
-
-                let enterAvg = enter.isEmpty ? nil : Double(enter.reduce(0, +)) / Double(enter.count)
-                let leaveAvg = leave.isEmpty ? nil : Double(leave.reduce(0, +)) / Double(leave.count)
-
-                let result: DailyAnalytics
-
-                switch (enterAvg, leaveAvg) {
-                case let (enter?, leave?):
-                    result = DailyAnalytics(score: leave - enter, kind: .none)
-                case let (enter?, nil):
-                    result = DailyAnalytics(score: enter, kind: .enterOnly)
-                case let (nil, leave?):
-                    result = DailyAnalytics(score: -leave, kind: .leaveOnly)
-                case (nil, nil):
-                    result = DailyAnalytics(score: 0, kind: .none)
-                }
-
-                return (date, result)
-            }
-        )
+    
+    private func averageDate(from dates: [Date]) -> Date? {
+        guard !dates.isEmpty else { return nil }
+        let avg = dates.map(\.timeIntervalSince1970).reduce(0, +) / Double(dates.count)
+        return Date(timeIntervalSince1970: avg)
     }
+
+    private func formattedDuration(from start: Date?, to end: Date?) -> String {
+        guard let start, let end else { return "—" }
+
+        let duration = end.timeIntervalSince(start)
+        guard duration >= 0 else { return "—" }
+
+        let totalMinutes = Int(duration / 60)
+        let hours = totalMinutes / 60
+        let minutes = totalMinutes % 60
+
+        if hours > 0 {
+            return "\(hours)h \(minutes)m"
+        } else {
+            return "\(minutes)m"
+        }
+    }
+
+    var dailyAnalytics: [DailyAnalytics] {
+        allSessions.map { session in
+            let enter = session.enterValues
+            let leave = session.leaveValues
+
+            let enterAvg = enter.isEmpty ? nil : Double(enter.reduce(0, +)) / Double(enter.count)
+            let leaveAvg = leave.isEmpty ? nil : Double(leave.reduce(0, +)) / Double(leave.count)
+
+            let youthsServed = max(session.enterValues.count, session.leaveValues.count)
+            let durationText = formattedDuration(
+                from: averageDate(from: session.enterTimestamps),
+                to: averageDate(from: session.leaveTimestamps)
+            )
+
+            switch (enterAvg, leaveAvg) {
+            case let (enter?, leave?):
+                return DailyAnalytics(
+                    day: session.day,
+                    score: leave - enter,
+                    kind: .none,
+                    youthsServed: youthsServed,
+                    durationText: durationText,
+                    roomName: session.room
+                )
+            case let (enter?, nil):
+                return DailyAnalytics(
+                    day: session.day,
+                    score: enter,
+                    kind: .enterOnly,
+                    youthsServed: youthsServed,
+                    durationText: durationText,
+                    roomName: session.room
+                )
+            case let (nil, leave?):
+                return DailyAnalytics(
+                    day: session.day,
+                    score: -leave,
+                    kind: .leaveOnly,
+                    youthsServed: youthsServed,
+                    durationText: durationText,
+                    roomName: session.room
+                )
+            case (nil, nil):
+                return DailyAnalytics(
+                    day: session.day,
+                    score: 0,
+                    kind: .none,
+                    youthsServed: youthsServed,
+                    durationText: durationText,
+                    roomName: session.room
+                )
+            }
+        }
+    }
+    
+    var youthsServed: Int {
+        let enterCount = session?.enterValues.count ?? 0
+        let leaveCount = session?.leaveValues.count ?? 0
+        return max(enterCount, leaveCount)
+    }
+
+    var averageEnterTime: Date? {
+        averageDate(from: session?.enterTimestamps ?? [])
+    }
+
+    var averageLeaveTime: Date? {
+        averageDate(from: session?.leaveTimestamps ?? [])
+    }
+
+
+    var programDuration: TimeInterval? {
+        guard
+            let enterAvg = averageEnterTime,
+            let leaveAvg = averageLeaveTime
+        else { return nil }
+
+        return leaveAvg.timeIntervalSince(enterAvg)
+    }
+
+    var formattedProgramDuration: String {
+        guard let duration = programDuration, duration >= 0 else { return "—" }
+
+        let totalMinutes = Int(duration / 60)
+        let hours = totalMinutes / 60
+        let minutes = totalMinutes % 60
+
+        if hours > 0 {
+            return "\(hours)h \(minutes)m"
+        } else {
+            return "\(minutes)m"
+        }
+    }
+
 }
