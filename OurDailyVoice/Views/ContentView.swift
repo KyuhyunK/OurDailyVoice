@@ -175,18 +175,13 @@ struct ContentView: View {
     // MARK: - HELPERS
 
     private var statsRow: some View {
-        let values = vm.mode == .enter
-            ? (vm.session?.enterValues ?? [])
-            : (vm.session?.leaveValues ?? [])
-
-        return HStack(spacing: 15) {
+        HStack(spacing: 15) {
             statPill("Avg", vm.average.map { String(format: "%.1f", $0) } ?? "—")
             statPill("Top", vm.topEmoji ?? "—")
             statPill("Youths", "\(vm.youthsServed)")
             statPill("Duration", vm.formattedProgramDuration)
         }
     }
-
     private func statPill(_ title: String, _ value: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)

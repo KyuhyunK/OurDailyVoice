@@ -40,7 +40,7 @@ struct AdminAnalyticsView: View {
     private let dashboardColumns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 2)
 
     // Increased slightly to make all text a bit larger
-    private let uiScale: CGFloat = 1.25
+    private let uiScale: CGFloat = 1.35
 
     init(
         dailyScores: [DailyAnalytics],
@@ -72,8 +72,8 @@ struct AdminAnalyticsView: View {
                 VStack(spacing: 18) {
                     filtersSection
                     kpiSection
-                    trendSection
                     calendarSection
+                    trendSection
                     roomBreakdownSection
                 }
                 .padding()
@@ -349,7 +349,7 @@ struct AdminAnalyticsView: View {
     private var trendSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Trend Summary")
-                .font(scaledFont(28, weight: .heavy))
+                .font(scaledFont(20, weight: .heavy))
                 .foregroundStyle(.white)
 
             VStack(spacing: 10) {

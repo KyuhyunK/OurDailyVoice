@@ -65,6 +65,16 @@ struct RoomListView: View {
                                     appState.selectedRoom = room
                                 } label: {
                                     HStack {
+                                        // Icon
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color.blue.opacity(0.15))
+                                                .frame(width: 40, height: 40)
+
+                                            Image(systemName: iconForRoom(room))
+                                                .foregroundStyle(.white)
+                                        }
+                                        // Text
                                         VStack(alignment: .leading, spacing: 4) {
                                             Text(room)
                                                 .font(.title3.weight(.semibold))
@@ -100,6 +110,20 @@ struct RoomListView: View {
             }
         }
     }
+    // Icon
+
+    private func iconForRoom(_ room: String) -> String {
+        let name = room.lowercased()
+
+        if name.contains("art") { return "paintpalette.fill" }
+        if name.contains("music") { return "music.note" }
+        if name.contains("game") { return "gamecontroller.fill" }
+        if name.contains("tech") { return "desktopcomputer" }
+        if name.contains("study") { return "book.fill" }
+        if name.contains("gym") { return "figure.run" }
+
+        return "person.3.fill"
+    }
 }
 
 #Preview {

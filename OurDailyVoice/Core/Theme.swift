@@ -15,7 +15,7 @@ enum Theme {
     static let cardOpacity: Double = 0.25
 
     static let bgGradient = LinearGradient(
-        colors: [Color.purple.opacity(0.7), Color.blue.opacity(0.55), Color.pink.opacity(0.55)],
+        colors: [Color.blue.opacity(0.9), Color.blue.opacity(0.8), Color.blue.opacity(0.65)],
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )
