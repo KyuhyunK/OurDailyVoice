@@ -1,10 +1,3 @@
-//
-//  AdminAnalyticsView.swift
-//  OurDailyVoice
-//
-//  Created by Kyu Kim on 3/24/26.
-//
-
 import SwiftUI
 
 enum AnalyticsKind {
@@ -45,6 +38,9 @@ struct AdminAnalyticsView: View {
     private let calendar = Calendar.current
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 7)
     private let dashboardColumns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 2)
+
+    // Increased slightly to make all text a bit larger
+    private let uiScale: CGFloat = 1.25
 
     init(
         dailyScores: [DailyAnalytics],
@@ -87,22 +83,28 @@ struct AdminAnalyticsView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 
+    // MARK: - Typography Helper
+
+    private func scaledFont(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
+        .system(size: size * uiScale, weight: weight)
+    }
+
     // MARK: - Filters
 
     private var filtersSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Filters")
-                .font(.system(size: 28 * uiScale, weight: .heavy))
+                .font(scaledFont(28, weight: .heavy))
                 .foregroundStyle(.white)
 
             VStack(alignment: .leading, spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Site")
-                        .font(.caption.weight(.semibold))
+                        .font(scaledFont(12, weight: .semibold))
                         .foregroundStyle(.white.opacity(1))
 
                     Text(siteName)
-                        .font(.headline.weight(.bold))
+                        .font(scaledFont(17, weight: .bold))
                         .foregroundStyle(.white)
                 }
 
@@ -136,10 +138,11 @@ struct AdminAnalyticsView: View {
                     )
                 }
                 .tint(.white)
+                .font(scaledFont(14, weight: .medium))
 
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Rooms")
-                        .font(.caption.weight(.semibold))
+                        .font(scaledFont(12, weight: .semibold))
                         .foregroundStyle(.white.opacity(0.8))
 
                     roomSelector
@@ -166,7 +169,7 @@ struct AdminAnalyticsView: View {
                     }
                 } label: {
                     Text(selectedRooms.count == availableRooms.count ? "Clear All" : "All Rooms")
-                        .font(.caption.weight(.semibold))
+                        .font(scaledFont(12, weight: .semibold))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
@@ -184,7 +187,7 @@ struct AdminAnalyticsView: View {
                         }
                     } label: {
                         Text(room)
-                            .font(.caption.weight(.semibold))
+                            .font(scaledFont(12, weight: .semibold))
                             .foregroundStyle(.white)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
@@ -286,32 +289,32 @@ struct AdminAnalyticsView: View {
     private var kpiSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Overview")
-                .font(.system(size: 28 * uiScale, weight: .heavy))
+                .font(scaledFont(28, weight: .heavy))
                 .foregroundStyle(.white)
 
             LazyVGrid(columns: dashboardColumns, spacing: 12) {
                 dashboardCard(
                     title: "Youths Served",
                     value: "\(totalYouthsServed)",
-                    subtitle: "Across selected days"
+                    subtitle: ""
                 )
 
                 dashboardCard(
                     title: "Avg Mood Change",
                     value: averageScore.map { scoreLabel($0) } ?? "—",
-                    subtitle: "Filtered date range"
+                    subtitle: ""
                 )
 
                 dashboardCard(
                     title: "Avg Duration",
                     value: averageDurationMinutes.map { formatDuration(minutes: $0) } ?? "—",
-                    subtitle: "Average program time"
+                    subtitle: ""
                 )
 
                 dashboardCard(
                     title: "Active Days",
                     value: "\(activeDaysCount)",
-                    subtitle: "Days with recorded data"
+                    subtitle: ""
                 )
             }
         }
@@ -320,17 +323,17 @@ struct AdminAnalyticsView: View {
     private func dashboardCard(title: String, value: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
-                .font(.caption.weight(.semibold))
+                .font(scaledFont(12, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.8))
 
             Text(value)
-                .font(.system(size: 28, weight: .heavy))
+                .font(scaledFont(28, weight: .heavy))
                 .foregroundStyle(.white)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
 
             Text(subtitle)
-                .font(.caption)
+                .font(scaledFont(12))
                 .foregroundStyle(.white.opacity(0.72))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -346,7 +349,7 @@ struct AdminAnalyticsView: View {
     private var trendSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Trend Summary")
-                .font(.system(size: 28 * uiScale, weight: .heavy))
+                .font(scaledFont(28, weight: .heavy))
                 .foregroundStyle(.white)
 
             VStack(spacing: 10) {
@@ -376,13 +379,13 @@ struct AdminAnalyticsView: View {
     private func statRow(label: String, value: String) -> some View {
         HStack(alignment: .top, spacing: 12) {
             Text(label)
-                .font(.subheadline.weight(.semibold))
+                .font(scaledFont(15, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.82))
 
             Spacer()
 
             Text(value)
-                .font(.subheadline.weight(.bold))
+                .font(scaledFont(15, weight: .bold))
                 .foregroundStyle(.white)
                 .multilineTextAlignment(.trailing)
         }
@@ -391,7 +394,7 @@ struct AdminAnalyticsView: View {
     private var calendarSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Calendar")
-                .font(.system(size: 28 * uiScale, weight: .heavy))
+                .font(scaledFont(28, weight: .heavy))
                 .foregroundStyle(.white)
 
             VStack(spacing: 20) {
@@ -413,12 +416,12 @@ struct AdminAnalyticsView: View {
     private var roomBreakdownSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Room Breakdown")
-                .font(.system(size: 28 * uiScale, weight: .heavy))
+                .font(scaledFont(28, weight: .heavy))
                 .foregroundStyle(.white)
 
             if roomSummaries.isEmpty {
                 Text("No room data for the selected filters.")
-                    .font(.subheadline)
+                    .font(scaledFont(15))
                     .foregroundStyle(.white.opacity(0.82))
                     .padding(16)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -430,11 +433,11 @@ struct AdminAnalyticsView: View {
                         HStack(spacing: 12) {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(summary.room)
-                                    .font(.headline.weight(.bold))
+                                    .font(scaledFont(17, weight: .bold))
                                     .foregroundStyle(.white)
 
                                 Text("\(summary.days) active days")
-                                    .font(.caption)
+                                    .font(scaledFont(12))
                                     .foregroundStyle(.white.opacity(0.72))
                             }
 
@@ -442,15 +445,15 @@ struct AdminAnalyticsView: View {
 
                             VStack(alignment: .trailing, spacing: 4) {
                                 Text("\(summary.youths) youths")
-                                    .font(.subheadline.weight(.heavy))
+                                    .font(scaledFont(15, weight: .heavy))
                                     .foregroundStyle(.white)
 
                                 Text(summary.avgScore.map { "Avg \(scoreLabel($0))" } ?? "Avg —")
-                                    .font(.caption)
+                                    .font(scaledFont(12))
                                     .foregroundStyle(.white.opacity(0.78))
 
                                 Text(summary.avgDurationMinutes.map { formatDuration(minutes: $0) } ?? "—")
-                                    .font(.caption)
+                                    .font(scaledFont(12))
                                     .foregroundStyle(.white.opacity(0.78))
                             }
                         }
@@ -475,7 +478,7 @@ struct AdminAnalyticsView: View {
                 changeMonth(by: -1)
             } label: {
                 Image(systemName: "chevron.left")
-                    .font(.title3.weight(.bold))
+                    .font(scaledFont(18, weight: .bold))
                     .foregroundStyle(.white)
                     .frame(width: 36, height: 36)
                     .background(.white.opacity(0.16))
@@ -486,7 +489,7 @@ struct AdminAnalyticsView: View {
             Spacer()
 
             Text(monthTitle(for: currentMonth))
-                .font(.system(size: 22, weight: .heavy))
+                .font(scaledFont(22, weight: .heavy))
                 .foregroundStyle(.white)
 
             Spacer()
@@ -495,7 +498,7 @@ struct AdminAnalyticsView: View {
                 changeMonth(by: 1)
             } label: {
                 Image(systemName: "chevron.right")
-                    .font(.title3.weight(.bold))
+                    .font(scaledFont(18, weight: .bold))
                     .foregroundStyle(.white)
                     .frame(width: 36, height: 36)
                     .background(.white.opacity(0.16))
@@ -509,7 +512,7 @@ struct AdminAnalyticsView: View {
         LazyVGrid(columns: columns, spacing: 12) {
             ForEach(calendar.shortWeekdaySymbols, id: \.self) { day in
                 Text(day)
-                    .font(.caption.weight(.semibold))
+                    .font(scaledFont(12, weight: .semibold))
                     .foregroundStyle(.white.opacity(0.78))
                     .frame(maxWidth: .infinity)
             }
@@ -546,7 +549,7 @@ struct AdminAnalyticsView: View {
                 .frame(width: 10, height: 10)
 
             Text(label)
-                .font(.caption)
+                .font(scaledFont(12))
                 .foregroundStyle(.white.opacity(0.78))
         }
     }
@@ -557,7 +560,7 @@ struct AdminAnalyticsView: View {
                 .foregroundStyle(color)
 
             Text(label)
-                .font(.caption)
+                .font(scaledFont(12))
                 .foregroundStyle(.white.opacity(0.78))
         }
     }
@@ -567,11 +570,11 @@ struct AdminAnalyticsView: View {
         switch kind {
         case .enterOnly:
             Image(systemName: "arrow.right.circle.fill")
-                .font(.system(size: 10))
+                .font(scaledFont(10))
                 .foregroundStyle(.blue)
         case .leaveOnly:
             Image(systemName: "arrow.left.circle.fill")
-                .font(.system(size: 10))
+                .font(scaledFont(10))
                 .foregroundStyle(.orange)
         case .none:
             EmptyView()
@@ -587,7 +590,7 @@ struct AdminAnalyticsView: View {
         VStack(spacing: 8) {
             HStack(spacing: 4) {
                 Text("\(dayNumber)")
-                    .font(.subheadline.weight(.bold))
+                    .font(scaledFont(15, weight: .bold))
                     .foregroundStyle(.white)
 
                 if let analytics {
@@ -597,7 +600,7 @@ struct AdminAnalyticsView: View {
 
             if let analytics {
                 Text(scoreLabel(analytics.score))
-                    .font(.caption.bold())
+                    .font(scaledFont(12, weight: .bold))
                     .foregroundStyle(.white)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
@@ -608,11 +611,11 @@ struct AdminAnalyticsView: View {
 
                 VStack(spacing: 4) {
                     Text("\(analytics.youthsServed) youths")
-                        .font(.caption2.weight(.semibold))
+                        .font(scaledFont(10, weight: .semibold))
                         .foregroundStyle(.white)
 
                     Text(analytics.durationText)
-                        .font(.caption2.weight(.semibold))
+                        .font(scaledFont(10, weight: .semibold))
                         .foregroundStyle(.white.opacity(0.9))
                         .multilineTextAlignment(.center)
                         .lineLimit(2)
@@ -620,7 +623,7 @@ struct AdminAnalyticsView: View {
                 }
             } else {
                 Text("—")
-                    .font(.caption)
+                    .font(scaledFont(12))
                     .foregroundStyle(.white.opacity(0.7))
             }
         }
@@ -638,8 +641,6 @@ struct AdminAnalyticsView: View {
     }
 
     // MARK: - Helpers
-    
-    private let uiScale: CGFloat = 1.12
 
     private var sectionFill: Color {
         .white.opacity(0.20)

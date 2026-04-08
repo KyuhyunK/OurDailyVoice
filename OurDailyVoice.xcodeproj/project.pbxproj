@@ -7,14 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AF19CC2959F9FB150D35F535 /* Pods_OurDailyVoice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 456DDCB8857A968D34FA0AF1 /* Pods_OurDailyVoice.framework */; };
+		1055F2F199E64F6A8684639A /* Pods_OurDailyVoice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D46AFFBF9AEACA3200B302C /* Pods_OurDailyVoice.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		456DDCB8857A968D34FA0AF1 /* Pods_OurDailyVoice.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OurDailyVoice.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		547D5A07D6C85FA656E99B06 /* Pods-OurDailyVoice.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OurDailyVoice.debug.xcconfig"; path = "Target Support Files/Pods-OurDailyVoice/Pods-OurDailyVoice.debug.xcconfig"; sourceTree = "<group>"; };
-		9891E70730341DDAF8D899B7 /* Pods-OurDailyVoice.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OurDailyVoice.release.xcconfig"; path = "Target Support Files/Pods-OurDailyVoice/Pods-OurDailyVoice.release.xcconfig"; sourceTree = "<group>"; };
+		648B7DA21757ECA5384EB955 /* Pods-OurDailyVoice.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OurDailyVoice.debug.xcconfig"; path = "Target Support Files/Pods-OurDailyVoice/Pods-OurDailyVoice.debug.xcconfig"; sourceTree = "<group>"; };
+		9D46AFFBF9AEACA3200B302C /* Pods_OurDailyVoice.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OurDailyVoice.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C42439242F18487C008CCA77 /* OurDailyVoice.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OurDailyVoice.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E6F563771B74CC8F8B9029AE /* Pods-OurDailyVoice.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OurDailyVoice.release.xcconfig"; path = "Target Support Files/Pods-OurDailyVoice/Pods-OurDailyVoice.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -30,17 +30,17 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AF19CC2959F9FB150D35F535 /* Pods_OurDailyVoice.framework in Frameworks */,
+				1055F2F199E64F6A8684639A /* Pods_OurDailyVoice.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		8882E9DE7726DBB2CD20033A /* Frameworks */ = {
+		4B0E2EAF4233DEA6F9EF575D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				456DDCB8857A968D34FA0AF1 /* Pods_OurDailyVoice.framework */,
+				9D46AFFBF9AEACA3200B302C /* Pods_OurDailyVoice.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -51,7 +51,7 @@
 				C42439262F18487C008CCA77 /* OurDailyVoice */,
 				C42439252F18487C008CCA77 /* Products */,
 				D7CAF158711D230388C47C96 /* Pods */,
-				8882E9DE7726DBB2CD20033A /* Frameworks */,
+				4B0E2EAF4233DEA6F9EF575D /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -66,8 +66,8 @@
 		D7CAF158711D230388C47C96 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				547D5A07D6C85FA656E99B06 /* Pods-OurDailyVoice.debug.xcconfig */,
-				9891E70730341DDAF8D899B7 /* Pods-OurDailyVoice.release.xcconfig */,
+				648B7DA21757ECA5384EB955 /* Pods-OurDailyVoice.debug.xcconfig */,
+				E6F563771B74CC8F8B9029AE /* Pods-OurDailyVoice.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -79,11 +79,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C42439332F18487E008CCA77 /* Build configuration list for PBXNativeTarget "OurDailyVoice" */;
 			buildPhases = (
-				CF2488DA5599C2CB04BC9B69 /* [CP] Check Pods Manifest.lock */,
+				877F31E28FB1B877F680141E /* [CP] Check Pods Manifest.lock */,
 				C42439202F18487C008CCA77 /* Sources */,
 				C42439212F18487C008CCA77 /* Frameworks */,
 				C42439222F18487C008CCA77 /* Resources */,
-				BA38635ABC2F62AFEFC3BEA8 /* [CP] Copy Pods Resources */,
+				870A7A666742ADFA3CD57F7D /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -145,7 +145,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		BA38635ABC2F62AFEFC3BEA8 /* [CP] Copy Pods Resources */ = {
+		870A7A666742ADFA3CD57F7D /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -166,7 +166,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-OurDailyVoice/Pods-OurDailyVoice-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		CF2488DA5599C2CB04BC9B69 /* [CP] Check Pods Manifest.lock */ = {
+		877F31E28FB1B877F680141E /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -321,7 +321,7 @@
 		};
 		C42439342F18487E008CCA77 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 547D5A07D6C85FA656E99B06 /* Pods-OurDailyVoice.debug.xcconfig */;
+			baseConfigurationReference = 648B7DA21757ECA5384EB955 /* Pods-OurDailyVoice.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -349,7 +349,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.1;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = org.BGCMT.OurDailyVoice;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -364,7 +364,7 @@
 		};
 		C42439352F18487E008CCA77 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9891E70730341DDAF8D899B7 /* Pods-OurDailyVoice.release.xcconfig */;
+			baseConfigurationReference = E6F563771B74CC8F8B9029AE /* Pods-OurDailyVoice.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -373,6 +373,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"OurDailyVoice/Preview Content\"";
+				DEVELOPMENT_TEAM = HBTVH5WS49;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -392,7 +393,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.1;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = org.BGCMT.OurDailyVoice;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;

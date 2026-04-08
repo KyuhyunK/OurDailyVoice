@@ -159,7 +159,7 @@ struct ContentView: View {
                             .foregroundStyle(.white.opacity(0.9))
                     }
                     .frame(maxWidth: .infinity)
-                    .frame(height: 150)
+                    .frame(height: 170)
                     .background(.white.opacity(Theme.cardOpacity))
                     .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
                     .overlay(
@@ -180,7 +180,6 @@ struct ContentView: View {
             : (vm.session?.leaveValues ?? [])
 
         return HStack(spacing: 15) {
-            statPill("Logs", "\(values.count)")
             statPill("Avg", vm.average.map { String(format: "%.1f", $0) } ?? "—")
             statPill("Top", vm.topEmoji ?? "—")
             statPill("Youths", "\(vm.youthsServed)")
@@ -249,7 +248,7 @@ struct ContentView: View {
                         }
                     }
                 }
-                .frame(maxHeight: 220)
+                .frame(maxHeight: 360)
             }
         }
     }
