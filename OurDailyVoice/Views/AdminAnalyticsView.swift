@@ -68,7 +68,7 @@ struct AdminAnalyticsView: View {
                 .ignoresSafeArea()
 
             ScrollView {
-                VStack(spacing: 18) {
+                VStack(spacing: 40) {
                     filtersSection
                     kpiSection
                     trendSection
@@ -394,43 +394,96 @@ struct AdminAnalyticsView: View {
     }
 
     private var calendarSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Calendar")
-                .font(scaledFont(28, weight: .heavy))
-                .foregroundStyle(.white)
+        let metrics = calendarMetrics(for: calendarAvailableWidth)
 
-            GeometryReader { geo in
-                let sectionPadding: CGFloat = 32
-                let gridSpacing: CGFloat = 12
-                let totalSpacing = gridSpacing * 6
-                let usableWidth = max(geo.size.width - sectionPadding, 0)
-                let cellWidth = (usableWidth - totalSpacing) / 7
-                let cellHeight = isPad ? max(cellWidth * 1.18, 110) : max(cellWidth * 1.06, 76)
+        return VStack(alignment: .leading, spacing: 26) {
+             Text("Calendar")
+                 .font(scaledFont(28, weight: .heavy))
+                 .foregroundStyle(.white)
+                 .padding(.bottom, 22)
 
-                VStack(spacing: 20) {
-                    header
-                    weekdayHeader
-                    monthGrid(cellHeight: cellHeight)
-                    legend
-                }
-                .padding(16)
-                .background(.white.opacity(Theme.cardOpacity))
-                .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
-                .overlay(
-                    RoundedRectangle(cornerRadius: Theme.corner)
-                        .stroke(.white.opacity(0.14), lineWidth: 1)
-                )
+            VStack(spacing: metrics.stackSpacing) {
+                header
+                    .frame(height: isPad ? 42 : 36)
+
+                weekdayHeader
+                    .frame(height: 20)
+
+                monthGrid(cellHeight: metrics.cellHeight)
+
+                legend
+                    .frame(minHeight: 48)
             }
-            .frame(height: calendarContentHeight)
+            .padding(.horizontal, metrics.innerPadding)
+            .padding(.top, metrics.topPadding)
+            .padding(.bottom, metrics.innerPadding)
+            .background(.white.opacity(Theme.cardOpacity))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.corner)
+                    .stroke(.white.opacity(0.14), lineWidth: 1)
+            )
+            .frame(height: metrics.totalHeight)
         }
+        .padding(.bottom, 20)
+    }
+    
+    private var calendarAvailableWidth: CGFloat {
+        let screenWidth = UIScreen.main.bounds.width
+        let outerPadding: CGFloat = 32
+        return max(screenWidth - outerPadding, 0)
     }
 
-    private var calendarContentHeight: CGFloat {
+    private func calendarMetrics(for availableWidth: CGFloat) -> CalendarMetrics {
+        let innerPadding: CGFloat = 16
+        let gridSpacing: CGFloat = 12
+        let topPadding: CGFloat = 16
         let weeks = max(1, daysForMonthGrid().count / 7)
-        let baseCellHeight: CGFloat = isPad ? 118 : 84
-        return CGFloat(weeks) * baseCellHeight + 170
+
+        let contentWidth = max(availableWidth - (innerPadding * 2), 0)
+        let totalGridSpacing = gridSpacing * 6
+        let cellWidth = (contentWidth - totalGridSpacing) / 7
+
+        let cellHeight = isPad
+            ? max(cellWidth * 1.18, 110)
+            : max(cellWidth * 1.06, 76)
+
+        let rowSpacing = CGFloat(max(0, weeks - 1)) * gridSpacing
+
+        let headerHeight: CGFloat = isPad ? 42 : 36
+        let weekdayHeight: CGFloat = 20
+        let legendHeight: CGFloat = 48
+        let stackSpacing: CGFloat = 20
+
+        let totalHeight =
+            topPadding +
+            headerHeight +
+            stackSpacing +
+            weekdayHeight +
+            stackSpacing +
+            (CGFloat(weeks) * cellHeight) +
+            rowSpacing +
+            stackSpacing +
+            legendHeight +
+            (innerPadding * 2)
+
+        return CalendarMetrics(
+            cellHeight: cellHeight,
+            totalHeight: totalHeight,
+            stackSpacing: stackSpacing,
+            innerPadding: innerPadding,
+            topPadding: topPadding
+        )
     }
 
+    private struct CalendarMetrics {
+        let cellHeight: CGFloat
+        let totalHeight: CGFloat
+        let stackSpacing: CGFloat
+        let innerPadding: CGFloat
+        let topPadding: CGFloat
+    }
+    
     private func monthGrid(cellHeight: CGFloat) -> some View {
         LazyVGrid(columns: columns, spacing: 12) {
             ForEach(daysForMonthGrid(), id: \.self) { date in
@@ -444,6 +497,7 @@ struct AdminAnalyticsView: View {
             Text("Room Breakdown")
                 .font(scaledFont(28, weight: .heavy))
                 .foregroundStyle(.white)
+                .padding(.bottom, 8)
 
             if roomSummaries.isEmpty {
                 Text("No room data for the selected filters.")
@@ -494,44 +548,52 @@ struct AdminAnalyticsView: View {
                 }
             }
         }
+        .padding(.top, 4)
     }
 
     // MARK: - Calendar Components
 
     private var header: some View {
-        HStack {
-            Button {
-                changeMonth(by: -1)
-            } label: {
-                Image(systemName: "chevron.left")
-                    .font(scaledFont(18, weight: .bold))
-                    .foregroundStyle(.white)
-                    .frame(width: isPad ? 42 : 36, height: isPad ? 42 : 36)
-                    .background(.white.opacity(0.18))
-                    .clipShape(Circle())
-            }
-            .buttonStyle(.plain)
+        let buttonSide: CGFloat = isPad ? 42 : 36
 
-            Spacer()
-
+        return ZStack {
             Text(monthTitle(for: currentMonth))
                 .font(scaledFont(22, weight: .heavy))
                 .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .frame(height: buttonSide, alignment: .center)
 
-            Spacer()
+            HStack {
+                Button {
+                    changeMonth(by: -1)
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .font(scaledFont(18, weight: .bold))
+                        .foregroundStyle(.white)
+                        .frame(width: buttonSide, height: buttonSide)
+                        .background(.white.opacity(0.18))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
 
-            Button {
-                changeMonth(by: 1)
-            } label: {
-                Image(systemName: "chevron.right")
-                    .font(scaledFont(18, weight: .bold))
-                    .foregroundStyle(.white)
-                    .frame(width: isPad ? 42 : 36, height: isPad ? 42 : 36)
-                    .background(.white.opacity(0.18))
-                    .clipShape(Circle())
+                Spacer()
+
+                Button {
+                    changeMonth(by: 1)
+                } label: {
+                    Image(systemName: "chevron.right")
+                        .font(scaledFont(18, weight: .bold))
+                        .foregroundStyle(.white)
+                        .frame(width: buttonSide, height: buttonSide)
+                        .background(.white.opacity(0.18))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
+        .frame(height: buttonSide, alignment: .center)
     }
 
     private var weekdayHeader: some View {
