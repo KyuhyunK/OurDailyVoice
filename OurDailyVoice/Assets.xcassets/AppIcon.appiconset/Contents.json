@@ -1,6 +1,13 @@
 {
   "images" : [
     {
+      "filename" : "ODV Logo 1.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    },
+    {
+      "filename" : "ODV Logo.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"

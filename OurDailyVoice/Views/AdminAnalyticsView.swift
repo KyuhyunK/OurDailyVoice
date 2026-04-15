@@ -39,8 +39,7 @@ struct AdminAnalyticsView: View {
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 7)
     private let dashboardColumns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 2)
 
-    // Increased slightly to make all text a bit larger
-    private let uiScale: CGFloat = 1.35
+    private let uiScale: CGFloat = 1.08
 
     init(
         dailyScores: [DailyAnalytics],
@@ -72,8 +71,8 @@ struct AdminAnalyticsView: View {
                 VStack(spacing: 18) {
                     filtersSection
                     kpiSection
-                    calendarSection
                     trendSection
+                    calendarSection
                     roomBreakdownSection
                 }
                 .padding()
@@ -83,10 +82,13 @@ struct AdminAnalyticsView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    // MARK: - Typography Helper
+    private var isPad: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
 
     private func scaledFont(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        .system(size: size * uiScale, weight: weight)
+        let deviceScale: CGFloat = isPad ? 1.08 : 0.94
+        return .system(size: size * uiScale * deviceScale, weight: weight)
     }
 
     // MARK: - Filters
@@ -101,7 +103,7 @@ struct AdminAnalyticsView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Site")
                         .font(scaledFont(12, weight: .semibold))
-                        .foregroundStyle(.white.opacity(1))
+                        .foregroundStyle(.white.opacity(0.9))
 
                     Text(siteName)
                         .font(scaledFont(17, weight: .bold))
@@ -143,7 +145,7 @@ struct AdminAnalyticsView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Rooms")
                         .font(scaledFont(12, weight: .semibold))
-                        .foregroundStyle(.white.opacity(0.8))
+                        .foregroundStyle(.white.opacity(0.85))
 
                     roomSelector
                 }
@@ -153,7 +155,7 @@ struct AdminAnalyticsView: View {
             .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.corner)
-                    .stroke(.white.opacity(0.12), lineWidth: 1)
+                    .stroke(.white.opacity(0.14), lineWidth: 1)
             )
         }
     }
@@ -173,7 +175,7 @@ struct AdminAnalyticsView: View {
                         .foregroundStyle(.white)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
-                        .background(.white.opacity(selectedRooms.isEmpty ? 0.30 : 0.20))
+                        .background(.white.opacity(selectedRooms.isEmpty ? 0.30 : 0.22))
                         .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
@@ -193,13 +195,13 @@ struct AdminAnalyticsView: View {
                             .padding(.vertical, 8)
                             .background(
                                 selectedRooms.contains(room)
-                                    ? .white.opacity(0.32)
-                                    : .white.opacity(0.16)
+                                    ? .white.opacity(0.34)
+                                    : .white.opacity(0.18)
                             )
                             .clipShape(Capsule())
                             .overlay(
                                 Capsule()
-                                    .stroke(.white.opacity(selectedRooms.contains(room) ? 0.45 : 0.12), lineWidth: 1)
+                                    .stroke(.white.opacity(selectedRooms.contains(room) ? 0.45 : 0.14), lineWidth: 1)
                             )
                     }
                     .buttonStyle(.plain)
@@ -208,7 +210,7 @@ struct AdminAnalyticsView: View {
         }
     }
 
-    // MARK: - Dashboard Data
+    // MARK: - Data
 
     private var filteredEntries: [DailyAnalytics] {
         let start = calendar.startOfDay(for: selectedStartDate)
@@ -324,7 +326,7 @@ struct AdminAnalyticsView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(scaledFont(12, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.8))
+                .foregroundStyle(.white.opacity(0.86))
 
             Text(value)
                 .font(scaledFont(28, weight: .heavy))
@@ -342,7 +344,7 @@ struct AdminAnalyticsView: View {
         .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
         .overlay(
             RoundedRectangle(cornerRadius: Theme.corner)
-                .stroke(.white.opacity(0.12), lineWidth: 1)
+                .stroke(.white.opacity(0.14), lineWidth: 1)
         )
     }
 
@@ -371,7 +373,7 @@ struct AdminAnalyticsView: View {
             .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.corner)
-                    .stroke(.white.opacity(0.12), lineWidth: 1)
+                    .stroke(.white.opacity(0.14), lineWidth: 1)
             )
         }
     }
@@ -380,7 +382,7 @@ struct AdminAnalyticsView: View {
         HStack(alignment: .top, spacing: 12) {
             Text(label)
                 .font(scaledFont(15, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.82))
+                .foregroundStyle(.white.opacity(0.86))
 
             Spacer()
 
@@ -397,19 +399,43 @@ struct AdminAnalyticsView: View {
                 .font(scaledFont(28, weight: .heavy))
                 .foregroundStyle(.white)
 
-            VStack(spacing: 20) {
-                header
-                weekdayHeader
-                monthGrid
-                legend
+            GeometryReader { geo in
+                let sectionPadding: CGFloat = 32
+                let gridSpacing: CGFloat = 12
+                let totalSpacing = gridSpacing * 6
+                let usableWidth = max(geo.size.width - sectionPadding, 0)
+                let cellWidth = (usableWidth - totalSpacing) / 7
+                let cellHeight = isPad ? max(cellWidth * 1.18, 110) : max(cellWidth * 1.06, 76)
+
+                VStack(spacing: 20) {
+                    header
+                    weekdayHeader
+                    monthGrid(cellHeight: cellHeight)
+                    legend
+                }
+                .padding(16)
+                .background(.white.opacity(Theme.cardOpacity))
+                .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
+                .overlay(
+                    RoundedRectangle(cornerRadius: Theme.corner)
+                        .stroke(.white.opacity(0.14), lineWidth: 1)
+                )
             }
-            .padding(16)
-            .background(.white.opacity(Theme.cardOpacity))
-            .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
-            .overlay(
-                RoundedRectangle(cornerRadius: Theme.corner)
-                    .stroke(.white.opacity(0.12), lineWidth: 1)
-            )
+            .frame(height: calendarContentHeight)
+        }
+    }
+
+    private var calendarContentHeight: CGFloat {
+        let weeks = max(1, daysForMonthGrid().count / 7)
+        let baseCellHeight: CGFloat = isPad ? 118 : 84
+        return CGFloat(weeks) * baseCellHeight + 170
+    }
+
+    private func monthGrid(cellHeight: CGFloat) -> some View {
+        LazyVGrid(columns: columns, spacing: 12) {
+            ForEach(daysForMonthGrid(), id: \.self) { date in
+                dayCell(for: date, cellHeight: cellHeight)
+            }
         }
     }
 
@@ -422,7 +448,7 @@ struct AdminAnalyticsView: View {
             if roomSummaries.isEmpty {
                 Text("No room data for the selected filters.")
                     .font(scaledFont(15))
-                    .foregroundStyle(.white.opacity(0.82))
+                    .foregroundStyle(.white.opacity(0.84))
                     .padding(16)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(.white.opacity(Theme.cardOpacity))
@@ -438,7 +464,7 @@ struct AdminAnalyticsView: View {
 
                                 Text("\(summary.days) active days")
                                     .font(scaledFont(12))
-                                    .foregroundStyle(.white.opacity(0.72))
+                                    .foregroundStyle(.white.opacity(0.76))
                             }
 
                             Spacer()
@@ -450,11 +476,11 @@ struct AdminAnalyticsView: View {
 
                                 Text(summary.avgScore.map { "Avg \(scoreLabel($0))" } ?? "Avg —")
                                     .font(scaledFont(12))
-                                    .foregroundStyle(.white.opacity(0.78))
+                                    .foregroundStyle(.white.opacity(0.8))
 
                                 Text(summary.avgDurationMinutes.map { formatDuration(minutes: $0) } ?? "—")
                                     .font(scaledFont(12))
-                                    .foregroundStyle(.white.opacity(0.78))
+                                    .foregroundStyle(.white.opacity(0.8))
                             }
                         }
                         .padding(14)
@@ -462,7 +488,7 @@ struct AdminAnalyticsView: View {
                         .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
                         .overlay(
                             RoundedRectangle(cornerRadius: Theme.corner)
-                                .stroke(.white.opacity(0.12), lineWidth: 1)
+                                .stroke(.white.opacity(0.14), lineWidth: 1)
                         )
                     }
                 }
@@ -480,8 +506,8 @@ struct AdminAnalyticsView: View {
                 Image(systemName: "chevron.left")
                     .font(scaledFont(18, weight: .bold))
                     .foregroundStyle(.white)
-                    .frame(width: 36, height: 36)
-                    .background(.white.opacity(0.16))
+                    .frame(width: isPad ? 42 : 36, height: isPad ? 42 : 36)
+                    .background(.white.opacity(0.18))
                     .clipShape(Circle())
             }
             .buttonStyle(.plain)
@@ -500,8 +526,8 @@ struct AdminAnalyticsView: View {
                 Image(systemName: "chevron.right")
                     .font(scaledFont(18, weight: .bold))
                     .foregroundStyle(.white)
-                    .frame(width: 36, height: 36)
-                    .background(.white.opacity(0.16))
+                    .frame(width: isPad ? 42 : 36, height: isPad ? 42 : 36)
+                    .background(.white.opacity(0.18))
                     .clipShape(Circle())
             }
             .buttonStyle(.plain)
@@ -513,16 +539,8 @@ struct AdminAnalyticsView: View {
             ForEach(calendar.shortWeekdaySymbols, id: \.self) { day in
                 Text(day)
                     .font(scaledFont(12, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.78))
+                    .foregroundStyle(.white.opacity(0.82))
                     .frame(maxWidth: .infinity)
-            }
-        }
-    }
-
-    private var monthGrid: some View {
-        LazyVGrid(columns: columns, spacing: 12) {
-            ForEach(daysForMonthGrid(), id: \.self) { date in
-                dayCell(for: date)
             }
         }
     }
@@ -550,7 +568,7 @@ struct AdminAnalyticsView: View {
 
             Text(label)
                 .font(scaledFont(12))
-                .foregroundStyle(.white.opacity(0.78))
+                .foregroundStyle(.white.opacity(0.8))
         }
     }
 
@@ -561,7 +579,7 @@ struct AdminAnalyticsView: View {
 
             Text(label)
                 .font(scaledFont(12))
-                .foregroundStyle(.white.opacity(0.78))
+                .foregroundStyle(.white.opacity(0.8))
         }
     }
 
@@ -582,15 +600,22 @@ struct AdminAnalyticsView: View {
     }
 
     @ViewBuilder
-    private func dayCell(for date: Date) -> some View {
+    private func dayCell(for date: Date, cellHeight: CGFloat) -> some View {
         let isInCurrentMonth = calendar.isDate(date, equalTo: currentMonth, toGranularity: .month)
         let dayNumber = calendar.component(.day, from: date)
         let analytics = analyticsForDate(date)
 
-        VStack(spacing: 8) {
+        let compact = cellHeight < 95
+        let dayFont: CGFloat = compact ? 12 : 15
+        let badgeFont: CGFloat = compact ? 9 : 12
+        let metaFont: CGFloat = compact ? 8 : 10
+        let innerPadding: CGFloat = compact ? 6 : 10
+        let verticalSpacing: CGFloat = compact ? 4 : 8
+
+        VStack(spacing: verticalSpacing) {
             HStack(spacing: 4) {
                 Text("\(dayNumber)")
-                    .font(scaledFont(15, weight: .bold))
+                    .font(scaledFont(dayFont, weight: .bold))
                     .foregroundStyle(.white)
 
                 if let analytics {
@@ -600,63 +625,50 @@ struct AdminAnalyticsView: View {
 
             if let analytics {
                 Text(scoreLabel(analytics.score))
-                    .font(scaledFont(12, weight: .bold))
+                    .font(scaledFont(badgeFont, weight: .bold))
                     .foregroundStyle(.white)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
+                    .padding(.horizontal, compact ? 6 : 8)
+                    .padding(.vertical, compact ? 3 : 4)
                     .background(
-                        Capsule()
-                            .fill(scoreColor(analytics.score))
+                        Capsule().fill(scoreColor(analytics.score))
                     )
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
 
-                VStack(spacing: 4) {
+                VStack(spacing: 2) {
                     Text("\(analytics.youthsServed) youths")
-                        .font(scaledFont(10, weight: .semibold))
+                        .font(scaledFont(metaFont, weight: .semibold))
                         .foregroundStyle(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.65)
 
                     Text(analytics.durationText)
-                        .font(scaledFont(10, weight: .semibold))
+                        .font(scaledFont(metaFont, weight: .semibold))
                         .foregroundStyle(.white.opacity(0.9))
                         .multilineTextAlignment(.center)
-                        .lineLimit(2)
-                        .minimumScaleFactor(0.8)
+                        .lineLimit(compact ? 1 : 2)
+                        .minimumScaleFactor(0.65)
                 }
             } else {
                 Text("—")
-                    .font(scaledFont(12))
+                    .font(scaledFont(compact ? 10 : 12))
                     .foregroundStyle(.white.opacity(0.7))
             }
         }
-        .frame(maxWidth: .infinity, minHeight: 118)
-        .padding(10)
+        .frame(maxWidth: .infinity, minHeight: cellHeight)
+        .padding(innerPadding)
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: compact ? 12 : 16)
                 .fill(cardFill(for: analytics?.score, isInCurrentMonth: isInCurrentMonth))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: compact ? 12 : 16)
                 .stroke(borderColor(for: analytics?.kind), lineWidth: 2)
         )
         .opacity(isInCurrentMonth ? 1.0 : 0.35)
     }
 
     // MARK: - Helpers
-
-    private var sectionFill: Color {
-        .white.opacity(0.20)
-    }
-
-    private var sectionStroke: Color {
-        .white.opacity(0.18)
-    }
-
-    private var cardFillColor: Color {
-        .white.opacity(0.18)
-    }
-
-    private var cardStrokeColor: Color {
-        .white.opacity(0.14)
-    }
 
     private func analyticsForDate(_ date: Date) -> DailyAnalytics? {
         let normalized = calendar.startOfDay(for: date)
@@ -713,9 +725,9 @@ struct AdminAnalyticsView: View {
         }
 
         if score > 0 {
-            return .green.opacity(0.26)
+            return .green.opacity(0.28)
         } else if score < 0 {
-            return .red.opacity(0.26)
+            return .red.opacity(0.28)
         } else {
             return .white.opacity(0.20)
         }

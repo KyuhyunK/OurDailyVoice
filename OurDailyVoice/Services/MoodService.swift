@@ -6,7 +6,6 @@
 //
 
 // Stores JSON from MoodEntry to Firebase
-
 import Foundation
 import FirebaseAuth
 import FirebaseFirestore
@@ -24,18 +23,19 @@ final class MoodService {
     // MARK: - Defaults
 
     private let defaultClubs: [Club] = [
-        Club(id: "aj", name: "Andrew Jackson", rooms: ["Dreamerville", "Teen Tech Center", "Music Studio", "Art Room", "Gym", "Game Room"]),
-        Club(id: "Chad", name: "Chadwell", rooms: ["Cafeteria, Gymnasium, Classroom #6, Classroom #16"]),
+        Club(id: "AJ", name: "Andrew Jackson", rooms: ["Dreamerville", "Music Studio", "Art Room", "Gym", "Game Room"]),
+        Club(id: "TTC", name: "Teen Tech Center", rooms: ["Teen Tech Center"]),
+        Club(id: "Chad", name: "Chadwell", rooms: ["Cafeteria", "Gymnasium", "Classroom #6", "Classroom #16"]),
         Club(id: "EEP", name: "East End Prep", rooms: ["PD Room", "Game Rooom"]),
         Club(id: "EV", name: "Eagle View", rooms: ["Classroom"]),
-        Club(id: "FV", name: "Fair View", rooms: ["Main Room, Tech Lab, STEM Lab, Gamesroom, Art Room"]),
-        Club(id: "Fr", name: "Franklin", rooms: ["Gamesroom, Homework Room, Gym, Tech Lab, Snack Room, Art Room, Teen Room, Music Studio"]),
-        Club(id: "GG", name: "Glengarry", rooms: ["Games room, Classroom, Cafeteria, Gym"]),
+        Club(id: "FV", name: "Fairview", rooms: ["Main Room", "Tech Lab", "STEM Lab", "Gamesroom", "Art Room"]),
+        Club(id: "FR", name: "Franklin", rooms: ["Gamesroom", "Homework Room", "Gym", "Tech Lab", "Snack Room", "Art Room", "Teen Room", "Music Studio"]),
+        Club(id: "GG", name: "Glengarry", rooms: ["Games room", "Classroom", "Cafeteria", "Gym"]),
         Club(id: "NB", name: "Neely's Bend", rooms: ["Classroom"]),
         Club(id: "PT", name: "Preston Taylor", rooms: ["Classroom"]),
-        Club(id: "Shw", name: "Shwab", rooms: ["Room 204", "Room 247"]),
-        Club(id: "Val", name: "Valor Clubhouse", rooms: ["Cafeteria, Classroom 1, Classroom 2, Classroom 3, Tech Area, Multipurpose Area"]),
-        Club(id: "ValHS", name: "Valor High School", rooms: ["Classroom"])
+        Club(id: "SHW", name: "Shwab", rooms: ["Room 204", "Room 247"]),
+        Club(id: "VAL", name: "Valor Clubhouse", rooms: ["Cafeteria", "Classroom 1", "Classroom 2", "Classroom 3", "Tech Area", "Multipurpose Area"]),
+        Club(id: "VALHS", name: "Valor High School", rooms: ["Classroom"])
     ]
 
     private lazy var db = Firestore.firestore()
